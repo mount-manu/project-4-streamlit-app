@@ -1,16 +1,31 @@
-import pickle
 import streamlit as st
+from PIL import Image
+import pickle
+import numpy as np
 
-st.title("Which author do you write like? :book:")
-st.subheader("Jane Austen or Edgar Allen Poe?")
+# Load the hot dog detection model
+with open('hotdog.pkl', 'rb') as file:
+    model = pickle.load(file)
 
-with open('../models/austen-poe-detector.pkl', 'rb') as f:
-    model = pickle.load(f)
 
-text = st.text_area("Enter text here.")
+# Define the Streamlit app
+def main():
+    st.file('Hot Dog Detector')
+    st.write('Upload an image to check if a hot dog is present')
 
-pred = model.predict([text])[0]
+    uploaded_image = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
-if st.button("Submit"):
-    st.write(f"You write most like: {pred}!")
-    st.balloons()
+    if uploaded_image is not None:
+        image = Image.open(uploaded_image)
+        st.image(image, caption='Uploaded Image', use_column_width=True)
+
+        # Perform hot dog detection
+        prediction = model.predict(image)
+
+        if prediction == 1:
+            st.write('We have a hot dog in our midst!')
+        else:
+            st.write('No hot dog was detected')
+
+if __name__ == '__main__':
+    main()
